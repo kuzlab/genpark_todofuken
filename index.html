@@ -6,226 +6,123 @@
     <title>都道府県・県庁所在地クイズアプリ</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
-        .japan-map {
-            max-width: 100%;
-            height: auto;
-            margin: 0 auto;
+        body {
+            background: white;
+            font-family: 'Hiragino Kaku Gothic Pro', 'ヒラギノ角ゴ Pro W3', Meiryo, メイリオ, Osaka, 'MS PGothic', arial, helvetica, sans-serif;
         }
         
         .geolonia-svg-map {
             width: 100%;
             max-width: 800px;
+            height: auto;
         }
         
-        .geolonia-svg-map .prefecture {
+        .geolonia-svg-map g[data-code] {
             fill: #f7f7f7;
             stroke: #666666;
-            stroke-width: 1;
+            stroke-width: 0.5;
             cursor: pointer;
-            transition: fill 0.3s ease;
         }
         
-        .geolonia-svg-map .boundary-line {
-            stroke: #999999;
-            fill: none;
-        }
-        
-        .prefecture-correct {
-            fill: #333333 !important;
-        }
-        
-        @keyframes prefecture-blink {
-            0% { fill: #f7f7f7; }
-            50% { fill: #ff0000; }
-            100% { fill: #f7f7f7; }
-        }
-        
-        .prefecture-blinking {
+        .blinking {
             animation: prefecture-blink 1s infinite;
         }
         
-        .quiz-container {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        @keyframes prefecture-blink {
+            0%, 50% { fill: #ff0000; }
+            51%, 100% { fill: #ffffff; }
         }
         
-        .map-container {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            padding: 20px;
-            margin: 20px;
+        .correct {
+            fill: #333333 !important;
         }
         
-        .control-panel {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-            padding: 25px;
-            margin: 20px;
+        .loading {
+            animation: spin 1s linear infinite;
         }
         
-        .btn-primary {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            border: none;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-        
-        .btn-success {
-            background: linear-gradient(45deg, #56ab2f, #a8e6cf);
-            border: none;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            margin: 0 10px;
-        }
-        
-        .btn-danger {
-            background: linear-gradient(45deg, #ff6b6b, #ffa8a8);
-            border: none;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            margin: 0 10px;
-        }
-        
-        .btn-success:hover, .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-        
-        .remaining-count {
-            background: linear-gradient(45deg, #ff7e5f, #feb47b);
-            color: white;
-            padding: 15px 25px;
-            border-radius: 25px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-        
-        .answer-area {
-            background: #f8f9fa;
-            border: 2px dashed #dee2e6;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 15px 0;
-            min-height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-        
-        .status-message {
-            background: #e3f2fd;
-            border-left: 4px solid #2196f3;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 15px 0;
-            font-weight: 500;
-        }
-        
-        .completion-message {
-            background: linear-gradient(45deg, #4CAF50, #8BC34A);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            font-size: 1.3rem;
-            font-weight: bold;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
-<body>
-    <div class="quiz-container">
-        <div class="container mx-auto px-4 py-8">
-            <!-- ヘッダー -->
-            <div class="text-center mb-8">
-                <h1 class="text-4xl font-bold text-white mb-4">🗾 都道府県・県庁所在地クイズ</h1>
-                <p class="text-white text-lg opacity-90">間違えた問題を繰り返し学習して完全暗記を目指そう！</p>
+<body class="bg-white min-h-screen flex flex-col items-center justify-center p-4">
+    <div class="w-full max-w-4xl">
+        <!-- ヘッダー -->
+        <div class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">都道府県・県庁所在地クイズ</h1>
+            <p class="text-gray-600">間違えた問題のみを繰り返し、全問正解を目指そう！</p>
+        </div>
+        
+        <!-- 進捗表示 -->
+        <div class="flex justify-between items-center mb-4 bg-gray-50 p-4 rounded-lg">
+            <div class="text-lg font-semibold">
+                残り都道府県数: <span id="remaining" class="text-blue-600 text-2xl">47</span>
             </div>
-            
-            <!-- 残り都道府県数 -->
-            <div class="flex justify-end mb-4">
-                <div class="remaining-count">
-                    残り: <span id="remainingCount">47</span> 都道府県
-                </div>
+            <div id="status" class="text-sm text-gray-500">
+                地図を読み込み中...
             </div>
-            
-            <!-- 地図エリア -->
-            <div class="map-container">
-                <div id="map" class="japan-map flex justify-center items-center">
-                    <div class="text-center py-20">
-                        <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                        <p class="text-gray-600 text-lg">地図を読み込み中...</p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- コントロールパネル -->
-            <div class="control-panel">
-                <!-- ステータスメッセージ -->
-                <div id="statusMessage" class="status-message hidden">
-                    地図読み込み完了
-                </div>
-                
-                <!-- 完了メッセージ -->
-                <div id="completionMessage" class="completion-message hidden">
-                    🎉 おめでとうございます！全問正解です！🎉<br>
-                    <small class="text-sm opacity-90 mt-2 block">新しいラウンドを開始します...</small>
-                </div>
-                
-                <!-- 回答エリア -->
-                <div class="mb-6">
-                    <div class="flex justify-end mb-2">
-                        <button id="showAnswerBtn" class="btn-primary" disabled>回答を表示</button>
-                    </div>
-                    <div id="answerArea" class="answer-area">
-                        都道府県が点滅したら「回答を表示」ボタンを押してください
-                    </div>
-                </div>
-                
-                <!-- 正解・不正解ボタン -->
-                <div class="text-center">
-                    <button id="correctBtn" class="btn-success" disabled>✓ 正解</button>
-                    <button id="incorrectBtn" class="btn-danger" disabled>✗ 不正解</button>
+        </div>
+        
+        <!-- 地図表示エリア -->
+        <div class="bg-white border-2 border-gray-200 rounded-lg p-4 mb-6">
+            <div id="map" class="flex justify-center items-center min-h-96">
+                <div class="flex items-center space-x-2">
+                    <div class="loading w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+                    <span class="text-gray-600">地図を読み込んでいます...</span>
                 </div>
             </div>
+        </div>
+        
+        <!-- 回答表示エリア -->
+        <div class="bg-gray-50 rounded-lg p-4 mb-4">
+            <div class="flex justify-end items-center space-x-4">
+                <div id="answer" class="text-lg font-semibold text-gray-700 flex-1"></div>
+                <button id="showAnswer" 
+                        class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                        disabled>
+                    回答を表示
+                </button>
+            </div>
+        </div>
+        
+        <!-- 正解・不正解ボタン -->
+        <div class="flex justify-center space-x-4">
+            <button id="correct" 
+                    class="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-lg font-semibold text-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                    disabled>
+                ✅ 正解
+            </button>
+            <button id="incorrect" 
+                    class="bg-red-500 hover:bg-red-600 text-white px-8 py-3 rounded-lg font-semibold text-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                    disabled>
+                ❌ 不正解
+            </button>
+        </div>
+        
+        <!-- 完了メッセージ -->
+        <div id="completion" class="hidden mt-6 p-6 bg-green-100 border border-green-300 rounded-lg text-center">
+            <h2 class="text-2xl font-bold text-green-800 mb-2">🎉 全問正解！おめでとうございます！</h2>
+            <p class="text-green-700 mb-4">47都道府県すべてを制覇しました！</p>
+            <button id="restart" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors">
+                もう一度挑戦
+            </button>
         </div>
     </div>
 
     <script>
         // 都道府県データ
         const prefectureData = {
-            '01': { name: '北海道', capital: '札幌市' },
-            '02': { name: '青森県', capital: '青森市' },
-            '03': { name: '岩手県', capital: '盛岡市' },
-            '04': { name: '宮城県', capital: '仙台市' },
-            '05': { name: '秋田県', capital: '秋田市' },
-            '06': { name: '山形県', capital: '山形市' },
-            '07': { name: '福島県', capital: '福島市' },
-            '08': { name: '茨城県', capital: '水戸市' },
-            '09': { name: '栃木県', capital: '宇都宮市' },
+            '1': { name: '北海道', capital: '札幌市' },
+            '2': { name: '青森県', capital: '青森市' },
+            '3': { name: '岩手県', capital: '盛岡市' },
+            '4': { name: '宮城県', capital: '仙台市' },
+            '5': { name: '秋田県', capital: '秋田市' },
+            '6': { name: '山形県', capital: '山形市' },
+            '7': { name: '福島県', capital: '福島市' },
+            '8': { name: '茨城県', capital: '水戸市' },
+            '9': { name: '栃木県', capital: '宇都宮市' },
             '10': { name: '群馬県', capital: '前橋市' },
             '11': { name: '埼玉県', capital: 'さいたま市' },
             '12': { name: '千葉県', capital: '千葉市' },
@@ -266,295 +163,258 @@
             '47': { name: '沖縄県', capital: '那覇市' }
         };
 
-        // ゲーム状態
-        let gameState = {
-            incorrectPrefectures: new Set(Object.keys(prefectureData)),
-            currentPrefecture: null,
-            prefectureElements: new Map(),
-            isBlinking: false,
-            answerShown: false
-        };
+        // アプリケーション状態
+        let prefectureElements = [];
+        let incorrectPrefectures = Object.keys(prefectureData);
+        let currentPrefecture = null;
+        let isBlinking = false;
+        let isProcessing = false;
 
         // DOM要素
         const elements = {
             map: document.getElementById('map'),
-            showAnswerBtn: document.getElementById('showAnswerBtn'),
-            answerArea: document.getElementById('answerArea'),
-            correctBtn: document.getElementById('correctBtn'),
-            incorrectBtn: document.getElementById('incorrectBtn'),
-            remainingCount: document.getElementById('remainingCount'),
-            statusMessage: document.getElementById('statusMessage'),
-            completionMessage: document.getElementById('completionMessage')
+            remaining: document.getElementById('remaining'),
+            status: document.getElementById('status'),
+            answer: document.getElementById('answer'),
+            showAnswer: document.getElementById('showAnswer'),
+            correct: document.getElementById('correct'),
+            incorrect: document.getElementById('incorrect'),
+            completion: document.getElementById('completion'),
+            restart: document.getElementById('restart')
         };
 
-        // SVG地図の読み込み
-        async function loadMap() {
+        // SVG読み込みと初期化
+        async function initializeMap() {
             try {
-                console.log('地図の読み込みを開始...');
-                const response = await fetch('https://raw.githubusercontent.com/geolonia/japanese-prefectures/master/map-full.svg');
+                elements.status.textContent = 'SVGファイルを取得中...';
                 
+                const response = await fetch('https://raw.githubusercontent.com/geolonia/japanese-prefectures/master/map-full.svg');
                 if (!response.ok) {
-                    throw new Error(`地図の読み込みに失敗: ${response.status}`);
+                    throw new Error('SVGファイルの取得に失敗しました');
                 }
                 
                 const svgText = await response.text();
                 elements.map.innerHTML = svgText;
                 
-                // 都道府県要素の収集（data-code属性を持つもののみ）
-                await initializePrefectures();
+                elements.status.textContent = '都道府県要素を設定中...';
                 
-                // 最初の問題を開始
-                await startNewQuestion();
-                
-                console.log('地図の読み込みと初期化が完了しました');
-                showStatusMessage('地図読み込み完了 - クイズを開始します！');
+                // 重要：DOM更新を待つ
+                setTimeout(() => {
+                    setupPrefectureElements();
+                }, 200);
                 
             } catch (error) {
-                console.error('地図読み込みエラー:', error);
-                elements.map.innerHTML = `
-                    <div class="text-center py-20">
-                        <p class="text-red-600 text-lg mb-4">❌ 地図の読み込みに失敗しました</p>
-                        <button onclick="loadMap()" class="btn-primary">再試行</button>
-                    </div>
-                `;
+                console.error('初期化エラー:', error);
+                elements.status.textContent = 'エラー: 地図の読み込みに失敗しました';
+                elements.map.innerHTML = '<div class="text-red-500 text-center p-8">地図の読み込みに失敗しました。ページを再読み込みしてください。</div>';
             }
         }
 
-        // 都道府県要素の初期化
-        async function initializePrefectures() {
-            return new Promise((resolve) => {
-                // 少し待ってからDOM要素を取得
-                setTimeout(() => {
-                    const allElements = document.querySelectorAll('.geolonia-svg-map .prefecture');
-                    console.log(`フィルタリング前: ${allElements.length} 個の要素`);
+        // 都道府県要素の設定
+        function setupPrefectureElements() {
+            try {
+                // 正しいセレクタで確実に47都道府県を取得
+                const elements = document.querySelectorAll('.geolonia-svg-map g[data-code]');
+                
+                console.log(`取得した要素数: ${elements.length}`);
+                
+                if (elements.length === 0) {
+                    // フォールバックセレクタ
+                    const fallbackElements = document.querySelectorAll('g[data-code]');
+                    console.log(`フォールバック要素数: ${fallbackElements.length}`);
                     
-                    // data-code属性を持つ都道府県のみをフィルタリング
-                    const validPrefectures = Array.from(allElements).filter(element => {
-                        const hasDataCode = element.hasAttribute('data-code') && element.getAttribute('data-code');
-                        if (!hasDataCode) {
-                            const index = Array.from(allElements).indexOf(element);
-                            console.log(`警告: data-code属性がない要素 (index: ${index})`);
-                        }
-                        return hasDataCode;
-                    });
-                    
-                    console.log(`フィルタリング後: ${validPrefectures.length} 個の都道府県要素`);
-                    
-                    // 都道府県要素をマップに登録
-                    gameState.prefectureElements.clear();
-                    validPrefectures.forEach(element => {
-                        const code = element.getAttribute('data-code');
-                        if (prefectureData[code]) {
-                            gameState.prefectureElements.set(code, element);
-                        }
-                    });
-                    
-                    console.log(`初期化完了: ${gameState.prefectureElements.size} 個の都道府県要素を登録`);
-                    
-                    if (gameState.prefectureElements.size !== 47) {
-                        console.warn(`警告: 期待される47都道府県と異なります (登録数: ${gameState.prefectureElements.size})`);
+                    if (fallbackElements.length > 0) {
+                        prefectureElements = Array.from(fallbackElements);
+                    } else {
+                        throw new Error('都道府県要素が見つかりません');
                     }
-                    
-                    resolve();
-                }, 100);
-            });
+                } else {
+                    prefectureElements = Array.from(elements);
+                }
+                
+                // data-code属性でフィルタリング
+                prefectureElements = prefectureElements.filter(el => {
+                    const dataCode = el.getAttribute('data-code');
+                    return dataCode && prefectureData[dataCode];
+                });
+                
+                if (prefectureElements.length !== 47) {
+                    console.warn(`警告: ${prefectureElements.length}/47個の都道府県要素しか取得できませんでした`);
+                }
+                
+                document.getElementById('status').textContent = `${prefectureElements.length}個の都道府県を登録しました`;
+                
+                // イベントリスナーの設定
+                setupEventListeners();
+                
+                // 最初の問題を開始
+                setTimeout(() => {
+                    document.getElementById('status').textContent = 'クイズ開始！';
+                    startNextQuestion();
+                }, 500);
+                
+            } catch (error) {
+                console.error('要素設定エラー:', error);
+                elements.status.textContent = `エラー: ${error.message}`;
+            }
         }
 
-        // 新しい問題の開始
-        async function startNewQuestion() {
-            if (gameState.incorrectPrefectures.size === 0) {
-                showCompletionMessage();
+        // イベントリスナーの設定
+        function setupEventListeners() {
+            elements.showAnswer.addEventListener('click', showAnswer);
+            elements.correct.addEventListener('click', () => handleAnswer(true));
+            elements.incorrect.addEventListener('click', () => handleAnswer(false));
+            elements.restart.addEventListener('click', restartQuiz);
+        }
+
+        // 次の問題を開始
+        function startNextQuestion() {
+            if (isProcessing) return;
+            
+            // 全問正解チェック
+            if (incorrectPrefectures.length === 0) {
+                showCompletion();
                 return;
             }
-
-            // 前の問題の点滅を停止
+            
+            // 前の点滅を停止
             stopBlinking();
             
-            // 回答エリアをリセット
-            resetAnswerArea();
-            
             // ランダムに都道府県を選択
-            const incorrectArray = Array.from(gameState.incorrectPrefectures);
-            const randomIndex = Math.floor(Math.random() * incorrectArray.length);
-            gameState.currentPrefecture = incorrectArray[randomIndex];
+            const randomIndex = Math.floor(Math.random() * incorrectPrefectures.length);
+            const selectedCode = incorrectPrefectures[randomIndex];
             
-            console.log(`点滅開始: ${gameState.currentPrefecture} - ${prefectureData[gameState.currentPrefecture].name}`);
+            // 要素を見つける
+            const element = prefectureElements.find(el => el.getAttribute('data-code') === selectedCode);
+            
+            if (!element) {
+                console.error(`要素が見つかりません: ${selectedCode}`);
+                // 見つからない場合は配列から削除
+                incorrectPrefectures.splice(randomIndex, 1);
+                updateRemainingCount();
+                setTimeout(startNextQuestion, 100);
+                return;
+            }
+            
+            currentPrefecture = {
+                code: selectedCode,
+                element: element,
+                data: prefectureData[selectedCode]
+            };
             
             // 点滅開始
-            await startBlinking(gameState.currentPrefecture);
+            startBlinking();
+            
+            // UI更新
+            elements.answer.textContent = '';
+            elements.showAnswer.disabled = false;
+            elements.correct.disabled = true;
+            elements.incorrect.disabled = true;
         }
 
         // 点滅開始
-        async function startBlinking(prefectureCode) {
-            return new Promise((resolve, reject) => {
-                const element = gameState.prefectureElements.get(prefectureCode);
-                
-                if (!element) {
-                    console.error(`点滅開始失敗: 要素が見つかりません: ${prefectureCode}`);
-                    reject(new Error(`都道府県要素が見つかりません: ${prefectureCode}`));
-                    return;
-                }
-                
-                try {
-                    element.classList.add('prefecture-blinking');
-                    gameState.isBlinking = true;
-                    elements.showAnswerBtn.disabled = false;
-                    
-                    console.log(`点滅開始成功: ${prefectureCode} - ${prefectureData[prefectureCode].name}`);
-                    resolve();
-                } catch (error) {
-                    console.error(`点滅開始エラー: ${prefectureCode}`, error);
-                    reject(error);
-                }
-            });
+        function startBlinking() {
+            if (!currentPrefecture || !currentPrefecture.element) return;
+            
+            stopBlinking();
+            currentPrefecture.element.classList.add('blinking');
+            isBlinking = true;
         }
 
         // 点滅停止
         function stopBlinking() {
-            if (gameState.currentPrefecture && gameState.isBlinking) {
-                const element = gameState.prefectureElements.get(gameState.currentPrefecture);
-                if (element) {
-                    element.classList.remove('prefecture-blinking');
-                }
-                gameState.isBlinking = false;
+            if (currentPrefecture && currentPrefecture.element) {
+                currentPrefecture.element.classList.remove('blinking');
             }
-        }
-
-        // 回答エリアのリセット
-        function resetAnswerArea() {
-            elements.answerArea.textContent = '都道府県が点滅したら「回答を表示」ボタンを押してください';
-            elements.showAnswerBtn.disabled = true;
-            elements.correctBtn.disabled = true;
-            elements.incorrectBtn.disabled = true;
-            gameState.answerShown = false;
+            isBlinking = false;
         }
 
         // 回答表示
         function showAnswer() {
-            if (!gameState.currentPrefecture) return;
+            if (!currentPrefecture) return;
             
-            const data = prefectureData[gameState.currentPrefecture];
-            elements.answerArea.innerHTML = `
-                <div class="text-center">
-                    <div class="text-2xl font-bold text-blue-600 mb-2">${data.name}</div>
-                    <div class="text-lg text-gray-700">県庁所在地: <span class="font-semibold">${data.capital}</span></div>
-                </div>
-            `;
+            const data = currentPrefecture.data;
+            elements.answer.textContent = `${data.name} / ${data.capital}`;
             
-            elements.showAnswerBtn.disabled = true;
-            elements.correctBtn.disabled = false;
-            elements.incorrectBtn.disabled = false;
-            gameState.answerShown = true;
+            elements.showAnswer.disabled = true;
+            elements.correct.disabled = false;
+            elements.incorrect.disabled = false;
         }
 
-        // 正解処理
-        function handleCorrect() {
-            if (!gameState.currentPrefecture) return;
+        // 回答処理
+        function handleAnswer(isCorrect) {
+            if (!currentPrefecture || isProcessing) return;
             
-            // 不正解リストから削除
-            gameState.incorrectPrefectures.delete(gameState.currentPrefecture);
+            isProcessing = true;
             
-            // 都道府県を黒色に変更
-            const element = gameState.prefectureElements.get(gameState.currentPrefecture);
-            if (element) {
-                stopBlinking();
-                element.classList.add('prefecture-correct');
-                console.log(`正解: ${gameState.currentPrefecture} - ${prefectureData[gameState.currentPrefecture].name} を黒色に変更`);
+            // 点滅停止
+            stopBlinking();
+            
+            if (isCorrect) {
+                // 正解の場合
+                currentPrefecture.element.classList.add('correct');
+                
+                // incorrect配列から削除
+                const index = incorrectPrefectures.indexOf(currentPrefecture.code);
+                if (index > -1) {
+                    incorrectPrefectures.splice(index, 1);
+                }
+                
+                updateRemainingCount();
             }
             
-            // 残り数を更新
-            updateRemainingCount();
-            
             // 次の問題へ
             setTimeout(() => {
-                startNewQuestion();
-            }, 1000);
+                isProcessing = false;
+                startNextQuestion();
+            }, 300);
         }
 
-        // 不正解処理
-        function handleIncorrect() {
-            if (!gameState.currentPrefecture) return;
-            
-            console.log(`不正解: ${gameState.currentPrefecture} - ${prefectureData[gameState.currentPrefecture].name}`);
-            
-            // 次の問題へ
-            setTimeout(() => {
-                startNewQuestion();
-            }, 1000);
-        }
-
-        // 残り数の更新
+        // 残り数更新
         function updateRemainingCount() {
-            elements.remainingCount.textContent = gameState.incorrectPrefectures.size;
+            elements.remaining.textContent = incorrectPrefectures.length;
         }
 
-        // 完了メッセージの表示
-        function showCompletionMessage() {
-            elements.completionMessage.classList.remove('hidden');
-            console.log('全問正解！ゲーム完了');
-            
-            // 3秒後にリセット
-            setTimeout(() => {
-                resetGame();
-            }, 3000);
+        // 完了表示
+        function showCompletion() {
+            elements.completion.classList.remove('hidden');
+            elements.showAnswer.disabled = true;
+            elements.correct.disabled = true;
+            elements.incorrect.disabled = true;
         }
 
-        // ステータスメッセージの表示
-        function showStatusMessage(message) {
-            elements.statusMessage.textContent = message;
-            elements.statusMessage.classList.remove('hidden');
+        // クイズ再開
+        function restartQuiz() {
+            // リセット
+            incorrectPrefectures = Object.keys(prefectureData);
+            currentPrefecture = null;
+            isBlinking = false;
+            isProcessing = false;
             
-            setTimeout(() => {
-                elements.statusMessage.classList.add('hidden');
-            }, 3000);
-        }
-
-        // ゲームリセット
-        function resetGame() {
-            console.log('ゲームをリセットします');
-            
-            // 完了メッセージを隠す
-            elements.completionMessage.classList.add('hidden');
-            
-            // すべての都道府県の色をリセット
-            gameState.prefectureElements.forEach(element => {
-                element.classList.remove('prefecture-correct', 'prefecture-blinking');
+            // 全要素のクラスをリセット
+            prefectureElements.forEach(el => {
+                el.classList.remove('blinking', 'correct');
             });
             
-            // ゲーム状態をリセット
-            gameState.incorrectPrefectures = new Set(Object.keys(prefectureData));
-            gameState.currentPrefecture = null;
-            gameState.isBlinking = false;
-            gameState.answerShown = false;
-            
-            // UI をリセット
+            // UI リセット
+            elements.completion.classList.add('hidden');
+            elements.answer.textContent = '';
             updateRemainingCount();
-            resetAnswerArea();
             
-            // 新しいゲームを開始
-            setTimeout(() => {
-                startNewQuestion();
-            }, 500);
+            // クイズ再開
+            setTimeout(startNextQuestion, 500);
         }
 
-        // イベントリスナーの設定
-        elements.showAnswerBtn.addEventListener('click', showAnswer);
-        elements.correctBtn.addEventListener('click', handleCorrect);
-        elements.incorrectBtn.addEventListener('click', handleIncorrect);
-
-        // 初期化
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('アプリケーションを初期化中...');
-            loadMap();
-        });
+        // 初期化開始
+        initializeMap();
     </script>
 </body>
 </html>
     <script id="html_badge_script1">
         window.__genspark_remove_badge_link = "https://www.genspark.ai/api/html_badge/" +
-            "remove_badge?token=To%2FBnjzloZ3UfQdcSaYfDomFCM2%2B0LXdg0BqhHDwq54PtqBT4YGQ9yL%2Fo0NJwYnt7u7XiIDYr7ULd1rM26P%2Fs9Uw4udQ6P%2BXXrV810d6elcapU7RgnJARBMICrTzdxm3%2FFreC1RS9PskkoNIZpN6lsuvKo3un9rBoYBaKb6zwdl1aqNy0VK3te%2Fxq%2Frik2ZzcSakKfP5WPODmto%2F25XICdRYZHDhTZZgPY1fyWmLcYFfNLN7tP69cZrDLUw5j23tkV39fRojA5LOP6lfzi2yAdjpOanWGVhavaq4e656c7sjR69Esn6AnPQA0y4G6p3p83nXrKGPslFqIY0e4bm%2BPMWP89BdFfO1FzuTmOQnXuljIsDK07%2FVnuQriE7zQ2CX7fwwrGuJtvcU57K4s4xn8n%2Bmvlwa1POQ8vCHMb8qhjS6HFwIvzfZ%2B8suXts6kH4lD25oFHkRpZsjQHzEDW%2FC5YyAL2l6w1UYt0ObFcKXc3GAEsVn4JAhiv6%2BHKNO1qaJRCCky8ctzy0haV70ci0sBoxKhVjHWAQuaGYQO0p7k14%3D";
+            "remove_badge?token=To%2FBnjzloZ3UfQdcSaYfDk%2F6WmVIpdZ39zsmqj1%2BM8MoPVDS1n4ehtR%2BTWTJ7yhuVeuon%2F5YEm9xxEwodtXbFVzvs6KQCPMJEHfjjBD5iI%2FHqOmFcGbKN4npCBJZu1%2F6ebBwqgoFlIHrmQhNAgQef9jiIIbeiNn9i4VWl5xIIPBdcu20DpLt3CDr8m6Kh0H1k0u1JUjr%2Fek5cgEv6eMz5KEALeOWpMrvxz61vuS0J4yMcZhFj4CqF%2FGJunOaKNXw5ylBRBHk7wz%2Bv%2BuOZw9S1sf%2FzKwyMUrS4nYqMdN0xi89rpbTbpInGYPhS6WHTsDm9%2F58oD2kE91T10uLATM0YxCEiF6fO3a0%2B8YueXgXCUC7tfbVxFIGCB%2F3KZYOvYHWHT9VOMKFnz2c%2Bim9e2pVkmoTovpuuFKxDQLCCYaZyqmy7LH3iUt4XxxHqGRKpI%2B7z%2FSdUHLx8DqzdDV33kR0jp%2BN3CT8rPfcGEgRlUPb4C8KL14zhRlTKuxmNqXOunW5hkOsvozhExFq%2B%2FmZAWHjBSbfv4DIT4nS6s1QEZxQqeY%3D";
         window.__genspark_locale = "en-US";
-        window.__genspark_token = "To/BnjzloZ3UfQdcSaYfDomFCM2+0LXdg0BqhHDwq54PtqBT4YGQ9yL/o0NJwYnt7u7XiIDYr7ULd1rM26P/s9Uw4udQ6P+XXrV810d6elcapU7RgnJARBMICrTzdxm3/FreC1RS9PskkoNIZpN6lsuvKo3un9rBoYBaKb6zwdl1aqNy0VK3te/xq/rik2ZzcSakKfP5WPODmto/25XICdRYZHDhTZZgPY1fyWmLcYFfNLN7tP69cZrDLUw5j23tkV39fRojA5LOP6lfzi2yAdjpOanWGVhavaq4e656c7sjR69Esn6AnPQA0y4G6p3p83nXrKGPslFqIY0e4bm+PMWP89BdFfO1FzuTmOQnXuljIsDK07/VnuQriE7zQ2CX7fwwrGuJtvcU57K4s4xn8n+mvlwa1POQ8vCHMb8qhjS6HFwIvzfZ+8suXts6kH4lD25oFHkRpZsjQHzEDW/C5YyAL2l6w1UYt0ObFcKXc3GAEsVn4JAhiv6+HKNO1qaJRCCky8ctzy0haV70ci0sBoxKhVjHWAQuaGYQO0p7k14=";
+        window.__genspark_token = "To/BnjzloZ3UfQdcSaYfDk/6WmVIpdZ39zsmqj1+M8MoPVDS1n4ehtR+TWTJ7yhuVeuon/5YEm9xxEwodtXbFVzvs6KQCPMJEHfjjBD5iI/HqOmFcGbKN4npCBJZu1/6ebBwqgoFlIHrmQhNAgQef9jiIIbeiNn9i4VWl5xIIPBdcu20DpLt3CDr8m6Kh0H1k0u1JUjr/ek5cgEv6eMz5KEALeOWpMrvxz61vuS0J4yMcZhFj4CqF/GJunOaKNXw5ylBRBHk7wz+v+uOZw9S1sf/zKwyMUrS4nYqMdN0xi89rpbTbpInGYPhS6WHTsDm9/58oD2kE91T10uLATM0YxCEiF6fO3a0+8YueXgXCUC7tfbVxFIGCB/3KZYOvYHWHT9VOMKFnz2c+im9e2pVkmoTovpuuFKxDQLCCYaZyqmy7LH3iUt4XxxHqGRKpI+7z/SdUHLx8DqzdDV33kR0jp+N3CT8rPfcGEgRlUPb4C8KL14zhRlTKuxmNqXOunW5hkOsvozhExFq+/mZAWHjBSbfv4DIT4nS6s1QEZxQqeY=";
     </script>
     
     <script id="html_notice_dialog_script" src="https://www.genspark.ai/notice_dialog.js"></script>
